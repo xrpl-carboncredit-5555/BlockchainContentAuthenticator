@@ -1,0 +1,72 @@
+================================================================================
+XRPL MAINNET DEPLOYMENT - QUICK START
+================================================================================
+
+📌 STEP 1: CREATE WALLET
+================================================================================
+python3 -c "from xrpl.wallet import Wallet; w = Wallet.create(); print(f'Address: {w.address}\nSecret: {w.seed}')"
+
+💾 SAVE BOTH ADDRESS AND SECRET SECURELY!
+
+📌 STEP 2: FUND WALLET
+================================================================================
+Send 15-20 XRP to wallet address
+Verify at: https://livenet.xrpl.org
+
+📌 STEP 3: CONFIGURE ENVIRONMENT
+================================================================================
+cp .env.mainnet.example .env
+nano .env
+
+Update:
+  XRPL_NODE_URL=https://xrplcluster.com/
+  XRPL_SECRET=sYourMainnetSecretHere
+  MONGODB_URI=mongodb+srv://production_user:password@production.mongodb.net/
+  MONGODB_DB=bcaxrplprod
+
+📌 STEP 4: VERIFY NETWORK
+================================================================================
+python verify_network.py
+
+Expected: "🔴 Network: MAINNET (PRODUCTION)"
+
+📌 STEP 5: TEST MINT (1 NFT)
+================================================================================
+python3 mint_nfts.py mint 1
+
+Type 'CONFIRM' when prompted
+Verify at: https://livenet.xrpl.org
+
+📌 STEP 6: PRODUCTION MINT
+================================================================================
+python3 mint_nfts.py mint 100
+
+Monitor:
+  python3 mint_nfts.py status
+
+================================================================================
+⚠️  CRITICAL REMINDERS
+================================================================================
+✓ Mainnet transactions are PERMANENT
+✓ Real XRP will be spent
+✓ Backup wallet secret offline
+✓ Never commit .env to git
+✓ Test on testnet first
+
+================================================================================
+📚 DOCUMENTATION
+================================================================================
+Complete Guide:   MAINNET_DEPLOYMENT.md
+Checklist:        MAINNET_CHECKLIST.md
+Summary:          MAINNET_SUMMARY.md
+README:           README.md
+
+================================================================================
+🆘 HELP
+================================================================================
+Network Issues:    python verify_network.py
+Status:            python3 mint_nfts.py status
+Explorer:          https://livenet.xrpl.org
+XRPL Status:       https://status.xrpl.org
+
+================================================================================

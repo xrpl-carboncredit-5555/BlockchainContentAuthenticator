@@ -1,0 +1,91 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Environment Variables (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+.env.mainnet
+.env.production
+.env.prod
+.env.testnet
+.env.dev
+.env.development
+*.env.backup
+
+# OAuth Credentials (SENSITIVE - DO NOT COMMIT)
+client_secrets.json
+token.json
+credentials.json
+*_secrets.json
+*_credentials.json
+
+# XRPL Wallet Backups (CRITICAL - NEVER COMMIT)
+wallet_*.json
+*_wallet.txt
+seed_*.txt
+secret_*.txt
+
+# YouTube Update Logs
+youtube_description_updates.log
+youtube_update_results_*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# MongoDB
+*.mongodb
+
+# Test files
+test_*.py
+*_test.py
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
