@@ -13,7 +13,7 @@ export default function Home() {
             <img
               src="/JF-Logo-horz-White.png"
               alt="Logo"
-              className="h-16 w-auto"
+              className="h-40 w-auto"   // <--- Increased from h-16 to h-24
             />
             <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Blockchain Content Authenticator
