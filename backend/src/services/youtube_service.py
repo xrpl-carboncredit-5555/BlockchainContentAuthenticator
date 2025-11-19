@@ -6,14 +6,17 @@ from typing import Dict, Any, List, Optional
 class YouTubeService:
     """Service for interacting with YouTube Data API v3"""
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, oauth_token: Optional[str] = None):
         """
         Initialize YouTube service
 
         Args:
             api_key: YouTube Data API key
+            oauth_token: Optional OAuth2 access token for authenticated
+                requests
         """
         self.api_key = api_key
+        self.oauth_token = oauth_token
         self.base_url = "https://www.googleapis.com/youtube/v3"
 
     def get_channel_uploads_playlist_id(self, channel_id: str) -> str:
@@ -43,7 +46,10 @@ class YouTubeService:
             if not data.get("items"):
                 raise Exception(f"Channel not found: {channel_id}")
 
-            uploads_playlist_id = data["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+            playlist_id = data["items"][0]["contentDetails"][
+                "relatedPlaylists"
+            ]["uploads"]
+            uploads_playlist_id = playlist_id
             return uploads_playlist_id
         except requests.exceptions.RequestException as e:
             raise Exception(f"Failed to get channel info: {str(e)}")
@@ -51,18 +57,33 @@ class YouTubeService:
     def fetch_all_videos_from_channel(
         self,
         channel_id: str,
-        max_results: int = 50
+        max_results: int = 50,
+        include_private: bool = False
     ) -> List[Dict[str, Any]]:
         """
         Fetch all video IDs from a channel's uploads playlist
 
+        Note: By default, this only fetches PUBLIC videos from the
+        uploads playlist. To include private, unlisted, and scheduled
+        videos, set include_private=True and ensure OAuth token is set.
+
         Args:
             channel_id: YouTube channel ID
             max_results: Maximum results per page (1-50)
+            include_private: If True, uses OAuth to fetch ALL videos
+                including private ones
 
         Returns:
             List of video items with video IDs and basic info
         """
+        # If include_private is True and we have OAuth token,
+        # use authenticated method
+        if include_private and self.oauth_token:
+            return self.fetch_all_videos_authenticated(
+                channel_id, max_results
+            )
+        
+        # Otherwise, use the public playlist method
         uploads_playlist_id = self.get_channel_uploads_playlist_id(channel_id)
 
         all_videos = []
@@ -95,6 +116,101 @@ class YouTubeService:
 
             except requests.exceptions.RequestException as e:
                 raise Exception(f"Failed to fetch videos: {str(e)}")
+
+        return all_videos
+
+    def fetch_all_videos_authenticated(
+        self,
+        channel_id: str,
+        max_results: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetch ALL videos from a channel including private, unlisted,
+        and scheduled videos. Requires OAuth authentication.
+
+        This method uses the videos.list endpoint with mine=True
+        parameter to fetch all videos regardless of privacy status.
+
+        Args:
+            channel_id: YouTube channel ID (used for validation)
+            max_results: Maximum results per page (1-50)
+
+        Returns:
+            List of video items with video IDs and basic info
+
+        Raises:
+            Exception: If OAuth token is not set
+        """
+        if not self.oauth_token:
+            raise Exception(
+                "OAuth token required to fetch private videos. "
+                "Please run 'python get_youtube_oauth_token.py' first."
+            )
+
+        print(
+            "   🔐 Using OAuth authentication to fetch ALL videos "
+            "(public, private, unlisted, scheduled)..."
+        )
+        
+        all_video_ids = []
+        next_page_token = None
+
+        # First, get all video IDs using search endpoint
+        while True:
+            params = {
+                "part": "id",
+                "forMine": "true",
+                "type": "video",
+                "maxResults": min(max_results, 50),
+            }
+
+            if next_page_token:
+                params["pageToken"] = next_page_token
+
+            headers = {
+                "Authorization": f"Bearer {self.oauth_token}"
+            }
+
+            try:
+                response = requests.get(
+                    f"{self.base_url}/search",
+                    params=params,
+                    headers=headers
+                )
+                response.raise_for_status()
+                data = response.json()
+
+                # Extract video IDs
+                for item in data.get("items", []):
+                    if item.get("id", {}).get("videoId"):
+                        all_video_ids.append(item["id"]["videoId"])
+
+                next_page_token = data.get("nextPageToken")
+                if not next_page_token:
+                    break
+
+            except requests.exceptions.RequestException as e:
+                raise Exception(f"Failed to fetch videos with OAuth: {str(e)}")
+
+        total_msg = (
+            f"   ✓ Found {len(all_video_ids)} total video IDs "
+            "(including private)"
+        )
+        print(total_msg)
+
+        # Now convert to the same format as playlistItems for consistency
+        all_videos = []
+        for video_id in all_video_ids:
+            all_videos.append({
+                "contentDetails": {
+                    "videoId": video_id
+                },
+                "snippet": {
+                    "resourceId": {
+                        "videoId": video_id
+                    }
+                }
+            })
 
         return all_videos
 
@@ -288,9 +404,12 @@ class YouTubeService:
         return videos_with_descriptions
 
 
-def create_youtube_service() -> YouTubeService:
+def create_youtube_service(oauth_token: Optional[str] = None) -> YouTubeService:
     """
     Factory function to create YouTubeService instance from environment variables
+
+    Args:
+        oauth_token: Optional OAuth2 access token for authenticated requests
 
     Returns:
         YouTubeService instance
@@ -300,4 +419,4 @@ def create_youtube_service() -> YouTubeService:
     if not api_key:
         raise ValueError("YOUTUBE_API_KEY environment variable is required")
 
-    return YouTubeService(api_key)
+    return YouTubeService(api_key, oauth_token=oauth_token)
