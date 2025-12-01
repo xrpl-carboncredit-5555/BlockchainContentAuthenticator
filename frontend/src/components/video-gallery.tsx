@@ -700,31 +700,32 @@ export default function VideoGallery() {
       {pagination.totalPages > 1 && (
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-sm text-gray-600">
                 Showing {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} videos
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={!pagination.hasPrev}
+                  className="px-2 sm:px-3"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
                 </Button>
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                  {Array.from({ length: Math.min(3, pagination.totalPages) }, (_, i) => {
                     let pageNum: number
-                    if (pagination.totalPages <= 5) {
+                    if (pagination.totalPages <= 3) {
                       pageNum = i + 1
-                    } else if (pagination.page <= 3) {
+                    } else if (pagination.page <= 2) {
                       pageNum = i + 1
-                    } else if (pagination.page >= pagination.totalPages - 2) {
-                      pageNum = pagination.totalPages - 4 + i
+                    } else if (pagination.page >= pagination.totalPages - 1) {
+                      pageNum = pagination.totalPages - 2 + i
                     } else {
-                      pageNum = pagination.page - 2 + i
+                      pageNum = pagination.page - 1 + i
                     }
                     return (
                       <Button
@@ -744,8 +745,9 @@ export default function VideoGallery() {
                   size="sm"
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={!pagination.hasNext}
+                  className="px-2 sm:px-3"
                 >
-                  Next
+                  <span className="hidden sm:inline">Next</span>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
