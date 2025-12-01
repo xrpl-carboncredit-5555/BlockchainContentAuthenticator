@@ -279,11 +279,11 @@ export default function VerifyNFTPage() {
                     {nftData.metadata.attributes && nftData.metadata.attributes.length > 0 && (
                       <div className="space-y-3">
                         <h4 className="font-medium text-gray-700">Attributes & Traits</h4>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {nftData.metadata.attributes.map((attr, index) => (
-                            <div key={index} className="bg-gray-50 rounded-lg p-2 text-xs">
+                            <div key={index} className="bg-gray-50 rounded-lg p-2 text-xs overflow-hidden">
                               <div className="font-medium text-gray-700 truncate">{attr.trait_type}</div>
-                              <div className="text-gray-600 break-words">
+                              <div className="text-gray-600 truncate" title={String(attr.value)}>
                                 {attr.display_type === 'date'
                                   ? formatDate(new Date(Number(attr.value) * 1000).toISOString())
                                   : String(attr.value)}
